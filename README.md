@@ -103,3 +103,52 @@ docker tag <image> username/repository:tag  # Tag <image> for upload to registry
 docker push username/repository:tag            # Upload tagged image to registry
 docker run username/repository:tag                   # Run image from a registry
 ```
+
+## Part 3: Services
+
+This is all about scaling and load balancing our application.
+
+In a distributed application different pieces of the app are called **services**.
+
+A **service** only runs one image, but it codifies the way that image runs - what ports it should use, how many replicas of the container should run etc.
+
+A `docker-compose.yml` file is a YAML file that defines how **Docker** containers should behave in production.
+
+The actual name is optional, so you could have a `docker-compose-dev.yml` for example.
+
+### Run as a load-balanced app
+
+The first step was to run `docker swarm init` however the reasons why will coming in a later part of the guide.
+
+To run as a load balanced app call `docker stack deploy -c docker-compose.yml getstartedlab`. You have to give your app a name.
+
+We can then see the 5 containers we just started with `docker stack ps getstartedlab`.
+
+When I call `curl -XGET http://localhost/` I'll see different ID's returned as it load balancer sends the request to one of the 5 containers.
+
+To take it down `docker stack rm getstartedlab`.
+
+### Scaling the app
+
+To scale, change the value of `replicas` in `docker-compose.yml` and simply re-run `docker stack deploy -c docker-compose.yml getstartedlab`. Docker does an in-place update, so the stack is left as is and no containers are killed`.
+
+### Take down
+
+To take down the app use `docker stack rm getstartedlab`. The 'app' will be removed but the `swarm` will still exist.
+
+To take down the swarm call `docker swarm leave --force`.
+
+### Recasp
+
+Calling `docker run` will get you a basic container but in production you should be thinking in terms of a **service**, i.e. the codification of a container's behaviour in a Compose file.
+
+### Commands used and related to this section
+
+```bash
+docker stack ls              # List all running applications on this Docker host
+docker stack deploy -c <composefile> <appname>  # Run the specified Compose file
+docker stack services <appname>       # List the services associated with an app
+docker stack ps <appname>   # List the running containers associated with an app
+docker stack rm <appname>                             # Tear down an application
+```
+

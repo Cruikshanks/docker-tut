@@ -1,0 +1,33 @@
+# This docker-compose.yml tells Docker to do the following
+#
+# - pull the image from the registry
+# - run 5 instances of that image as a service called `web`, limiting
+#   each one to use, at most, 10% of the CPU (across all cores), and
+#   and 50MB of RAM
+# - immediately restart containers if one fails
+# - map port 80 on the host to `web`'s port 80
+# - instruct `web`'s containers to share port 80 via a load-balanced
+#   network called `webnet`
+# - define `webnet` network with the default settings (which is a
+#   load-balanced network)
+
+# The version 3 entry makes this swarm mode compatible, but swarm is covered
+# later in the guide.
+version: "3"
+services:
+  web:
+    image: cruikshanks/get-started:part1
+    deploy:
+      replicas: 5
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "80:80"
+    networks:
+      - webnet
+networks:
+  webnet:
