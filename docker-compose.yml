@@ -16,7 +16,7 @@
 version: "3"
 services:
   web:
-    image: cruikshanks/get-started:part1
+    image: cruikshanks/get-started:part4
     deploy:
       replicas: 5
       resources:
