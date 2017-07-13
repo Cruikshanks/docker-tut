@@ -293,3 +293,13 @@ For Redis to work in our stack, the host has to be the same else we'd have multi
 
 Having updated `docker-compose.yml` updating the stack in the swarm is the same commands as above.
 
+## Part 6: Deploy your app
+
+This involved linking Docker cloud to Azure, creating a swarm in Azure, and then via the **Docker for Mac** app opening a terminal and deploying the app we've created here.
+
+I was able to see the app had deployed by tracking down the IP address (starting with the Resource groups menu in azure, and clicking down through anything related to the swarm created) and navigating to it in the browser.
+
+However it wasn't all rosy. There appeared to be a problem with Redis so the count wasn't incrementing and I couldn't access anything other than the web app.
+
+However I left the tutorial there rather than trying to iron out this issues.
+ 
