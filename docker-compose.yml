@@ -1,16 +1,32 @@
 # This docker-compose.yml tells Docker to do the following
 #
+# - create a service called `web`
 # - pull the image from the registry
-# - run 5 instances of that image as a service called `web`, limiting
-#   each one to use, at most, 10% of the CPU (across all cores), and
-#   and 50MB of RAM
-# - immediately restart containers if one fails
+# - run 5 instances, limiting each one to use, at most, 10% of the CPU 
+#   (across all cores), and 50MB of RAM
+# - immediately restart a container if one fails
 # - map port 80 on the host to `web`'s port 80
 # - instruct `web`'s containers to share port 80 via a load-balanced
 #   network called `webnet`
+#
+# - create a service called `visualizer`
+# - pull the image from the registry
+# - map port 8080 on the host to `visualizer`s port 8080
+# - give `visualizer` access to the host's socket file for Docker (volumes)
+# - ensure `visualizer` only runs on a swarm manager - never a worker
+# - add it to the `webnet` network
+#
+# - create a service called 'redis'
+# - pull the image from the registry (is official hence has a shortname)
+# - map port 6379 on the host to `redis`s port 6379
+# - give access to a folder called data/ on the host via `/data` in
+#   the container (you have to create the host folder before deploying)
+# - ensure `redis` only runs on a swarm manager - never a worker
+# - add it to the `webnet` network
+#
 # - define `webnet` network with the default settings (which is a
 #   load-balanced network)
-
+#
 # The version 3 entry makes this swarm mode compatible, but swarm is covered
 # later in the guide.
 version: "3"
@@ -27,6 +43,28 @@ services:
         condition: on-failure
     ports:
       - "80:80"
+    networks:
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data:/data
+    deploy:
+      placement:
+        constraints: [node.role == manager]
     networks:
       - webnet
 networks:

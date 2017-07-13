@@ -232,7 +232,7 @@ docker build -t friendlyhello .
 docker tag friendlyhello cruikshanks/get-started:part4
 docker push cruikshanks/get-started:part4
 # Amend docker-compose.yml to pull part4 instead of part1
-docker-machine scp docker-compose.yml myvm1:~
+dvinocker-machine scp docker-compose.yml myvm1:~
 docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"
 curl -XGET http://192.168.99.100
 ```
@@ -270,4 +270,26 @@ docker-machine rm $(docker-machine ls -q) # Delete all VMs and their disk images
 docker-machine scp docker-compose.yml myvm1:~     # Copy file to node's home dir
 docker-machine ssh myvm1 "docker stack deploy -c <file> <app>"   # Deploy an app
 ```
+
+## Part 5: Stacks
+
+A **stack** is a group of interrelated services that share dependencies, and can be orchestrated and scaled together.
+
+Though we've been working with a **stack** since part 3, its not a typical example as it was a single app on a single host.
+
+Having added the visualizer to our stack by updating the `docker-compose.yml` file we run the following to apply that to our swarm.
+
+```bash
+docker-machine scp docker-compose.yml myvm1:~
+docker-machine ssh myvm1 "docker stack deploy -c docker-compose.yml getstartedlab"
+curl -XGET http://localhost:8080
+```
+
+Another gotcha! I found you need to give it a second before the `curl` command will return a result.
+
+When we add **Redis** to our stack via `docker-compose.yml` we have to begin managing the data it generates. We do this by specifying a **volume~** which mounts a folder on the host as a folder in the container. Any changes made in the folder are avaiulable to both the host and container.
+
+For Redis to work in our stack, the host has to be the same else we'd have multiple databases across the cluster. So we limit its deployment to just the swarm manager.
+
+Having updated `docker-compose.yml` updating the stack in the swarm is the same commands as above.
 
